@@ -166,3 +166,139 @@ class Cat(Pet):
             raise DataFormatError(f"Некорректные данные кошки: {exc}") from exc
 
 
+# =========================================================================
+# 3) Класс PetShelter — хранилище и работа с файлами
+# =========================================================================
+class PetShelter:
+    """Домашние животные: коллекции собак и кошек, чтение/запись файлов."""
+
+    def __init__(self) -> None:
+        self.dogs: list[Dog] = []
+        self.cats: list[Cat] = []
+
+    def add_dog(self, dog: Dog) -> None:
+        self.dogs.append(dog)
+
+    def add_cat(self, cat: Cat) -> None:
+        self.cats.append(cat)
+
+    # --- JSON: собаки (пункт 6) ---
+    def save_dogs_json(self, path: str) -> None:
+        """Запись списка собак в JSON-файл."""
+        data = [dog.to_dict() for dog in self.dogs]
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
+        except OSError as exc:
+            raise DataFormatError(f"Не удалось записать файл {path}: {exc}") from exc
+
+    def load_dogs_json(self, path: str) -> None:
+        """Чтение списка собак из JSON-файла."""
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except (OSError, json.JSONDecodeError) as exc:
+            raise DataFormatError(f"Не удалось прочитать файл {path}: {exc}") from exc
+        if not isinstance(data, list):
+            raise DataFormatError(f"Ожидался список собак в файле {path}")
+        self.dogs = [Dog.from_dict(item) for item in data]
+
+    # --- XML: кошки (пункт 6) ---
+    def save_cats_xml(self, path: str) -> None:
+        """Запись списка кошек в XML-файл (модуль ElementTree)."""
+        root = ET.Element("cats")
+        for cat in self.cats:
+            root.append(cat.to_xml())
+        tree = ET.ElementTree(root)
+        try:
+            tree.write(path, encoding="utf-8", xml_declaration=True)
+        except OSError as exc:
+            raise DataFormatError(f"Не удалось записать файл {path}: {exc}") from exc
+
+    def load_cats_xml(self, path: str) -> None:
+        """Чтение списка кошек из XML-файла."""
+        try:
+            tree = ET.parse(path)
+        except (OSError, ET.ParseError) as exc:
+            raise DataFormatError(f"Не удалось прочитать файл {path}: {exc}") from exc
+        root = tree.getroot()
+        if root.tag != "cats":
+            raise DataFormatError(
+                f"Корневой элемент должен быть <cats>, найден <{root.tag}>"
+            )
+        self.cats = [Cat.from_xml(elem) for elem in root.findall("cat")]
+
+    def show_all(self) -> None:
+        """Вывод всех домашних животных на экран."""
+        print("=" * 60)
+        print("СОБАКИ (JSON):")
+        for dog in self.dogs:
+            print("  -", dog)
+        print("КОШКИ (XML):")
+        for cat in self.cats:
+            print("  -", cat)
+        print("=" * 60)
+
+
+# =========================================================================
+# 4) Демонстрация обработки исключений
+# =========================================================================
+def demo_exceptions() -> None:
+    """Проверка встроенных и собственных исключений."""
+    print("\n--- Демонстрация обработки исключений ---")
+
+    # Собственное исключение: пустое имя
+    try:
+        Dog("", 3, 12.5, "Иван", "Лабрадор", True)
+    except EmptyNameError as exc:
+        print(f"[EmptyNameError] {exc}")
+
+    # Собственное исключение: некорректный возраст
+    try:
+        Cat("Мурка", -2, 4.0, "Анна", "Британская", "Мячик")
+    except InvalidAgeError as exc:
+        print(f"[InvalidAgeError] {exc}")
+
+    # Собственное исключение: некорректный вес
+    try:
+        Dog("Бобик", 5, -1, "Иван", "Дворняга", False)
+    except InvalidWeightError as exc:
+        print(f"[InvalidWeightError] {exc}")
+
+    # Встроенное исключение: пустая порода
+    try:
+        Cat("Мурка", 2, 3.5, "Анна", "", "Мячик")
+    except ValueError as exc:
+        print(f"[ValueError] {exc}")
+
+    # Встроенное исключение: деление на ноль (ZeroDivisionError)
+    try:
+        animals = 0
+        ratio = 100 / animals
+    except ZeroDivisionError as exc:
+        print(f"[ZeroDivisionError] {exc}")
+
+    # Собственное исключение: ошибка формата данных
+    try:
+        Dog.from_dict({"name": "Без полей"})
+    except DataFormatError as exc:
+        print(f"[DataFormatError] {exc}")
+
+    # Обработка нескольких исключений в одном блоке
+    try:
+        with open("no_such_file.json", "r", encoding="utf-8") as f:
+            json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError) as exc:
+        print(f"[FileNotFoundError/JSONDecodeError] {exc}")
+
+    # Блок else / finally
+    try:
+        value = int("42")
+    except ValueError:
+        print("Не число")
+    else:
+        print(f"[else] Преобразование успешно: {value}")
+    finally:
+        print("[finally] Блок finally выполняется всегда")
+
+
