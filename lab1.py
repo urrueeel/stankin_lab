@@ -118,3 +118,51 @@ class Dog(Pet):
         except (KeyError, TypeError, ValueError, PetError) as exc:
             raise DataFormatError(f"Некорректные данные собаки: {exc}") from exc
 
+
+# =========================================================================
+# 3) Класс Cat (хранится в XML)
+# =========================================================================
+class Cat(Pet):
+    """Кошка. Добавляет породу и любимую игрушку."""
+
+    def __init__(self, name: str, age: int, weight: float, owner: str,
+                 breed: str, favorite_toy: str) -> None:
+        super().__init__(name, age, weight, owner)
+        if not breed or not breed.strip():
+            raise ValueError("Порода кошки не может быть пустой")
+        self.breed = breed.strip()
+        self.favorite_toy = favorite_toy.strip() if favorite_toy else "Не указана"
+
+    def get_info(self) -> str:
+        return (f"Кошка: {self.name}, порода: {self.breed}, возраст: {self.age} лет, "
+                f"вес: {self.weight} кг, хозяин: {self.owner}, "
+                f"любимая игрушка: {self.favorite_toy}")
+
+    # --- сериализация в XML (пункт 6) ---
+    def to_xml(self) -> ET.Element:
+        """Преобразование объекта в XML-элемент."""
+        elem = ET.Element("cat")
+        ET.SubElement(elem, "name").text = self.name
+        ET.SubElement(elem, "age").text = str(self.age)
+        ET.SubElement(elem, "weight").text = str(self.weight)
+        ET.SubElement(elem, "owner").text = self.owner
+        ET.SubElement(elem, "breed").text = self.breed
+        ET.SubElement(elem, "favorite_toy").text = self.favorite_toy
+        return elem
+
+    @classmethod
+    def from_xml(cls, element: ET.Element) -> "Cat":
+        """Создание объекта из XML-элемента (десериализация)."""
+        try:
+            return cls(
+                name=element.findtext("name", ""),
+                age=int(element.findtext("age", "0")),
+                weight=float(element.findtext("weight", "0")),
+                owner=element.findtext("owner", ""),
+                breed=element.findtext("breed", ""),
+                favorite_toy=element.findtext("favorite_toy", ""),
+            )
+        except (TypeError, ValueError, PetError) as exc:
+            raise DataFormatError(f"Некорректные данные кошки: {exc}") from exc
+
+
