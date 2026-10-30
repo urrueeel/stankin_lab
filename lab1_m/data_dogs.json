@@ -1,0 +1,26 @@
+[
+    {
+        "name": "Бобик",
+        "age": 5,
+        "weight": 12.5,
+        "owner": "Иван Петров",
+        "breed": "Лабрадор",
+        "trained": true
+    },
+    {
+        "name": "Рекс",
+        "age": 3,
+        "weight": 18.0,
+        "owner": "Мария Иванова",
+        "breed": "Овчарка",
+        "trained": true
+    },
+    {
+        "name": "Тузик",
+        "age": 7,
+        "weight": 9.2,
+        "owner": "Алексей Смирнов",
+        "breed": "Дворняга",
+        "trained": false
+    }
+]

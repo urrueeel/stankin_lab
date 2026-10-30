@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='utf-8'?>
+<cats><cat><name>Мурка</name><age>2</age><weight>3.5</weight><owner>Анна Иванова</owner><breed>Британская</breed><favorite_toy>Мячик</favorite_toy></cat><cat><name>Барсик</name><age>4</age><weight>5.1</weight><owner>Павел Сидоров</owner><breed>Сибирская</breed><favorite_toy>Мышка</favorite_toy></cat><cat><name>Луна</name><age>1</age><weight>2.8</weight><owner>Елена Кузнецова</owner><breed>Сиамская</breed><favorite_toy>Верёвочка</favorite_toy></cat></cats>
